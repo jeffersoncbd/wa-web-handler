@@ -13,7 +13,10 @@ const redis = {
   password: process.env.REDIS_PASSWORD as string
 }
 
-const inboxQueue = new Bull<Message>('inbox', { redis })
+const inboxQueue = new Bull<Message>(
+  process.env.STORM === 'true' ? 'storm' : 'inbox',
+  { redis }
+)
 const toSendQueue = new Bull<ToSendData>('to-send', { redis })
 
 type Callback = (message: Message) => void
