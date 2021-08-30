@@ -1,4 +1,4 @@
-import { create as createWA, Message } from '@open-wa/wa-automate'
+import { ContactId, create as createWA, decryptMedia, Message } from '@open-wa/wa-automate'
 import express from 'express'
 import cors from 'cors'
 import { inboxQueue, toSendQueue } from './queues'
@@ -43,10 +43,30 @@ async function start() {
       contacts: contacts
         .filter((contacts) => contacts.id !== 'status@broadcast')
         .map((contact) => ({
-          name: contact.name || contact.id,
+          name: contact.name === undefined ? contact.id : contact.name,
           number: contact.id
         }))
     })
+  })
+
+  server.get('/messages-from/:contact', async (request, response) => {
+    const { contact } = request.params
+
+    const messages = await client.getAllMessagesInChat(contact as ContactId, true, false)
+
+    return response.json(messages.map((message) => {
+      const { body, fromMe, mimetype } = message
+      return { body, fromMe, mimetype }
+    }))
+  })
+
+  server.get('/cache', async (_, response) => {
+    const amount = await client.getAmountOfLoadedMessages()
+    return response.json({ amount })
+  })
+  server.get('/clear-cache', async (_, response) => {
+    const result = await client.cutChatCache()
+    return response.json(result)
   })
 
   server.listen(process.env.SERVER_PORT, () => {
