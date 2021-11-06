@@ -1,5 +1,7 @@
 /node_modules
 /logs
+/dist
+
 .env
 
 # managed by open-wa
