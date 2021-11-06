@@ -13,14 +13,12 @@ const redis = {
   password: process.env.REDIS_PASSWORD as string
 }
 
-const typeInboxQueue = process.env.STORM === 'true' ? 'storm' : 'inbox'
-
 export const inboxQueue = new Bull<Message>(
-  `${typeInboxQueue}-${process.env.USER_NUMBER}`,
+  `whatsapp-inbox-${process.env.USER_NUMBER}`,
   { redis }
 )
 
 export const toSendQueue = new Bull<ToSendData>(
-  `to-send-${process.env.USER_NUMBER}`,
+  `whatsapp-toSend-${process.env.USER_NUMBER}`,
   { redis }
 )

@@ -1,4 +1,4 @@
-import { ContactId, create as createWA, decryptMedia, Message } from '@open-wa/wa-automate'
+import { ContactId, create as createWA, Message } from '@open-wa/wa-automate'
 import express from 'express'
 import cors from 'cors'
 import { inboxQueue, toSendQueue } from './queues'
@@ -43,10 +43,16 @@ async function start() {
       contacts: contacts
         .filter((contacts) => contacts.id !== 'status@broadcast')
         .map((contact) => ({
-          name: contact.name === undefined ? contact.id : contact.name,
+          name: contact.name !== undefined ? contact.name : contact.id,
           number: contact.id
         }))
     })
+  })
+
+  server.get('/send-quick-message/:from/:message', async (request, response) => {
+    const { from, message } = request.params
+    await client.sendText(from as ContactId, message)
+    return response.json({ feedback: 'message send' })
   })
 
   server.get('/messages-from/:contact', async (request, response) => {
