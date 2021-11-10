@@ -21,7 +21,12 @@ function filter(message: Message, callback: Callback) {
 }
 
 async function start() {
-  const client = await createWA()
+  const client = await createWA({
+    maxChats: 5,
+    maxMessages: 400
+  })
+
+  setInterval(client.cutChatCache, 3600000)
 
   client.onMessage((message) => {
     filter(message, (message) => {
